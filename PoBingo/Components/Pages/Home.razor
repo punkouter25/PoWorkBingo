@@ -1,0 +1,432 @@
+﻿@page "/"
+@using System.IO
+@using System.Text.RegularExpressions
+@inject IJSRuntime JSRuntime
+@rendermode InteractiveServer
+
+<PageTitle>Bingo Game</PageTitle>
+
+<div class="container">
+    <h1>Document Review Bingo</h1>
+
+    <!-- Upload Section First -->
+    <div class="upload-container">
+        <div class="upload-section">
+            <h2>Step 1: Upload Your Document</h2>
+            <label class="upload-button">
+                <InputFile OnChange="@ProcessFile" accept=".txt" class="file-input" />
+                Upload Text File
+            </label>
+            <div class="file-instructions">
+                Upload a .txt file (max 5MB) to check for matches
+            </div>
+            @if (lastUploadedFile != null)
+            {
+                <div class="upload-info">
+                    Last uploaded file: @lastUploadedFile
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Bingo Grid Section -->
+    <div class="game-section">
+        <h2>Step 2: Check Your Bingo Card</h2>
+        <div class="bingo-grid">
+            @{
+                var phrases = new string[]
+                {
+            "Smoke Test", "That makes sense", "Confused", "That's fair",
+            "Dev", "Test", "File Router", "Behind Schedule",
+            "SQL", "Azure", "Comm Service", "Optimization",
+            "Person", "Ball", "Code", ".NET"
+                };
+
+                for (int i = 0; i < 16; i++)
+                {
+                    var isHighlighted = IsHighlighted(i);
+                    var isMatched = IsMatched(phrases[i]);
+                    <div class="bingo-cell @(isHighlighted ? "highlighted" : "") @(isMatched ? "matched" : "")" @key="i">
+                        @phrases[i]
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
+    @if (extractedWords.Any())
+    {
+        <div class="word-grid-section">
+            <h3>Top 20 Words</h3>
+            <div class="word-grid">
+                <div class="word-cell header">Rank</div>
+                <div class="word-cell header">Word</div>
+                <div class="word-cell header">Count</div>
+                @foreach (var word in extractedWords.Take(20).Select((w, i) => new { Word = w.Key, Count = w.Value, Rank = i + 1 }))
+                {
+                    <div class="word-cell">@word.Rank</div>
+                    <div class="word-cell">@word.Word</div>
+                    <div class="word-cell">@word.Count</div>
+                }
+            </div>
+        </div>
+    }
+
+    @if (debugInfo != null)
+    {
+        <div class="debug-info">
+            <h3>Debug Information</h3>
+            <pre>@debugInfo</pre>
+        </div>
+    }
+</div>
+
+@if (showBingoModal)
+{
+    <div class="modal-backdrop">
+        <div class="modal-content">
+            <h2>BINGO!</h2>
+            <p>Congratulations! You've found a winning combination!</p>
+            <button class="close-button" @onclick="CloseModal">Close</button>
+        </div>
+    </div>
+}
+
+<style>
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #333;
+    }
+
+    h2 {
+        color: #444;
+        margin-bottom: 20px;
+        font-size: 1.5em;
+    }
+
+    .upload-container {
+        margin-bottom: 40px;
+    }
+
+    .upload-section {
+        background-color: #f8f9fa;
+        padding: 25px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        text-align: center;
+        margin: 0 auto;
+        max-width: 400px;
+    }
+
+    .upload-button {
+        display: inline-block;
+        padding: 12px 24px;
+        background-color: #007bff;
+        color: white;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 15px 0;
+        transition: background-color 0.3s;
+        font-weight: bold;
+    }
+
+        .upload-button:hover {
+            background-color: #0056b3;
+        }
+
+    .game-section {
+        text-align: center;
+    }
+
+    .bingo-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .bingo-cell {
+        aspect-ratio: 1;
+        border: 2px solid #333;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 10px;
+        font-size: 14px;
+        background-color: white;
+        transition: background-color 0.3s;
+    }
+
+    .matched {
+        background-color: #e6ffe6;
+    }
+
+    .highlighted {
+        background-color: yellow;
+    }
+
+    .word-grid-section {
+        margin-top: 40px;
+        text-align: center;
+    }
+
+    .word-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin: 20px auto;
+        max-width: 600px;
+    }
+
+    .word-cell {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: center;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+        font-size: 12px;
+        word-break: break-word;
+    }
+
+    .header {
+        font-weight: bold;
+        background-color: #007bff;
+        color: white;
+    }
+
+    .file-input {
+        display: none;
+    }
+
+    .file-instructions {
+        color: #666;
+        font-size: 14px;
+    }
+
+    .upload-info {
+        margin-top: 10px;
+        color: #28a745;
+        font-size: 14px;
+    }
+
+    .debug-info {
+        margin-top: 40px;
+        max-width: 600px;
+        margin: 40px auto;
+    }
+
+        .debug-info pre {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            color: #666;
+        }
+
+    .modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .modal-content {
+        background-color: white;
+        padding: 20px;
+        border-radius: 5px;
+        text-align: center;
+    }
+
+    .close-button {
+        margin-top: 10px;
+        padding: 5px 15px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+    }
+
+        .close-button:hover {
+            background-color: #0056b3;
+        }
+</style>
+
+@code {
+    private bool showBingoModal = false;
+    private HashSet<string> matchedWords = new();
+    private List<int> highlightedCells = new();
+    private string? lastUploadedFile;
+    private string? debugInfo;
+    private Dictionary<string, int> extractedWords = new();
+
+    private bool IsHighlighted(int index) => highlightedCells.Contains(index);
+    private bool IsMatched(string phrase) => matchedWords.Contains(phrase.ToLower().Replace("?", ""));
+
+    private async Task ProcessFile(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            var file = e.File;
+            lastUploadedFile = file.Name;
+            debugInfo = $"Processing file: {file.Name}\n";
+
+            if (file.Size > 5 * 1024 * 1024) // 5MB limit
+            {
+                await JSRuntime.InvokeVoidAsync("alert", "File size must be less than 5MB");
+                return;
+            }
+
+            using var reader = new StreamReader(file.OpenReadStream());
+            var content = await reader.ReadToEndAsync();
+
+            debugInfo += $"File content length: {content.Length} characters\n\n";
+
+            // Reset game state
+            matchedWords.Clear();
+            highlightedCells.Clear();
+            extractedWords.Clear();
+
+            // Extract and store words
+            ExtractWords(content);
+
+            // Process the content and check for matches
+            ProcessContent(content);
+
+            await JSRuntime.InvokeVoidAsync("console.log", "File processed:", file.Name);
+            await JSRuntime.InvokeVoidAsync("console.log", "Extracted words:", string.Join(", ", extractedWords.Keys));
+            await JSRuntime.InvokeVoidAsync("console.log", "Matched words:", string.Join(", ", matchedWords));
+        }
+        catch (Exception ex)
+        {
+            debugInfo = $"Error: {ex.Message}\n{ex.StackTrace}";
+            await JSRuntime.InvokeVoidAsync("console.error", "Error processing file:", ex.Message);
+            await JSRuntime.InvokeVoidAsync("alert", "Error processing file: " + ex.Message);
+        }
+    }
+
+
+
+
+
+    private void ExtractWords(string content)
+    {
+        // List of common words to ignore
+        var commonWords = new HashSet<string>
+        {
+            "i", "me", "my", "myself", "we", "our", "ours", "ourselves", "you", "your", "yours", "yourself", "yourselves",
+            "he", "him", "his", "himself", "she", "her", "hers", "herself", "it", "its", "itself", "they", "them", "their",
+            "theirs", "themselves", "what", "which", "who", "whom", "this", "that", "these", "those", "am", "is", "are",
+            "was", "were", "be", "been", "being", "have", "has", "had", "having", "do", "does", "did", "doing", "a", "an",
+            "the", "and", "but", "if", "or", "because", "as", "until", "while", "of", "at", "by", "for", "with", "about",
+            "against", "between", "into", "through", "during", "before", "after", "above", "below", "to", "from", "up",
+            "down", "in", "out", "on", "off", "over", "under", "again", "further", "then", "once", "here", "there", "when",
+            "where", "why", "how", "all", "any", "both", "each", "few", "more", "most", "other", "some", "such", "no",
+            "nor", "not", "only", "own", "same", "so", "than", "too", "very", "s", "t", "can", "will", "just", "don",
+            "should", "now", "speaker"
+        };
+
+        // Split content into words, removing punctuation and extra whitespace
+        var words = Regex.Split(content.ToLower(), @"[\p{P}\s]+")
+            .Where(w => !string.IsNullOrWhiteSpace(w) && !commonWords.Contains(w) && w.Length > 3 && !Regex.IsMatch(w, @"^\d+$"))
+            .GroupBy(w => w)
+            .ToDictionary(g => g.Key, g => g.Count());
+
+        extractedWords = words.OrderByDescending(w => w.Value).ToDictionary(w => w.Key, w => w.Value);
+        debugInfo += $"Total words extracted: {words.Count}\n\n";
+    }
+
+    private void ProcessContent(string content)
+    {
+        var phrases = new string[]
+      {
+    "Smoke Test", "That makes sense", "Confused", "That's fair",
+    "Dev", "Test", "File Router", "Behind Schedule",
+    "SQL", "Azure", "Comm Service", "Optimization",
+    "Person", "Ball", "Code", ".NET"
+      };
+
+        content = content.ToLower();
+        debugInfo += "Checking for matches...\n";
+
+        foreach (var phrase in phrases)
+        {
+            var cleanPhrase = phrase.ToLower().Replace("?", "");
+            if (content.Contains(cleanPhrase))
+            {
+                matchedWords.Add(cleanPhrase);
+                debugInfo += $"Found match: {phrase}\n";
+            }
+        }
+
+        debugInfo += $"\nTotal matches found: {matchedWords.Count}\n";
+        CheckForBingo();
+    }
+
+    private void CheckForBingo()
+    {
+        var winningCombinations = new List<int[]>
+        {
+            // Rows
+            new[] { 0, 1, 2, 3 },
+            new[] { 4, 5, 6, 7 },
+            new[] { 8, 9, 10, 11 },
+            new[] { 12, 13, 14, 15 },
+            // Columns
+            new[] { 0, 4, 8, 12 },
+            new[] { 1, 5, 9, 13 },
+            new[] { 2, 6, 10, 14 },
+            new[] { 3, 7, 11, 15 },
+            // Diagonals
+            new[] { 0, 5, 10, 15 },
+            new[] { 3, 6, 9, 12 }
+        };
+
+        var phrases = new string[]
+       {
+    "Smoke Test", "That makes sense", "Confused", "That's fair",
+    "Dev", "Test", "File Router", "Behind Schedule",
+    "SQL", "Azure", "Comm Service", "Optimization",
+    "Person", "Ball", "Code", ".NET"
+       };
+
+        debugInfo += "\nChecking for winning combinations...\n";
+
+        foreach (var combination in winningCombinations)
+        {
+            var combinationPhrases = combination.Select(i => phrases[i].ToLower().Replace("?", "")).ToList();
+            var allMatched = combinationPhrases.All(phrase => matchedWords.Contains(phrase));
+
+            if (allMatched)
+            {
+                // We have a bingo!
+                highlightedCells.AddRange(combination);
+                showBingoModal = true;
+                debugInfo += $"BINGO found! Winning combination: {string.Join(", ", combinationPhrases)}\n";
+                break;
+            }
+        }
+    }
+
+    private void CloseModal()
+    {
+        showBingoModal = false;
+    }
+}

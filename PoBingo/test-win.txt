@@ -1,0 +1,8 @@
+Here is a document that contains winning phrases:
+
+Smoke Test - this needs to be done
+We need to check the Table for data
+I am Confused about this requirement
+I don't understand what we need to do next
+
+Some other text that shouldn't affect the matches.
