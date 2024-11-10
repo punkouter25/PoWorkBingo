@@ -1,0 +1,100 @@
+VR POKERSTARS
+NOCLIP VR
+big ballers vr
+forest
+4XVR
+virtual desktop
+eleven table
+racket club
+Thrill of the fight
+walkabout mini golf
+Fluid
+premium bowling
+flow
+
+iwr -useb https://christitus.com/win | iex
+----------------------------------------------------------------------------------------------------------------------------------------
+COMPUTER SETUP:
+- Windows 11 / View NOTES on VAULT / onedrive unlink / Organize taskbar icons / copy old data to downloads / Display Settings 100hz / Triple Monitor / Make main monitor / taskbar on main
+- ADMIN POWERSHELL - Set-ExecutionPolicy Bypass -Scope Process -Force; iwr https://community.chocolatey.org/install.ps1 -UseBasicParsing | iex
+- ADMIN POWERSHELL - choco install -y vscode spotify blender docker-desktop azure-data-studio nodejs discord gh azd git python microsoftazurestorageexplorer azure-cli googledrive
+- Install Visual Studio 2022 (https://visualstudio.microsoft.com/vs/) / Install extensions: WakaTime 
+- Install Studio One + ALL (https://my.presonus.com/login) 
+- Install CURSOR AI (https://cursor.sh/) / PINOKIO (https://program.pinokio.computer/#/?id=install) / META (https://www.meta.com/quest/setup/) 
+- Install LM STUDIO (https://lmstudio.ai/) / ACE STUDIO (https://www.acestudio.ai/download)
+- Install AOE4 (STORE) / 3D VIEWER (STORE)
+- Install Locals: ZOOM/IRIG drivers/EZMix3/EZDrummer3
+
+LAPTOP SETUP:
+- Windows 11 / View NOTES on GOOGLE DRIVE / onedrive unlink / Organize taskbar icons
+- ADMIN POWERSHELL - Set-ExecutionPolicy Bypass -Scope Process -Force; iwr https://community.chocolatey.org/install.ps1 -UseBasicParsing | iex
+- ADMIN POWERSHELL - choco install -y vscode spotify blender docker-desktop azure-data-studio nodejs discord gh azd git python microsoftazurestorageexplorer azure-cli googledrive
+- Install Visual Studio 2022 (https://visualstudio.microsoft.com/vs/) / Install extensions: WakaTime 
+
+
+FOLLOWING: 
+- 20 Reddit 
+- 10 Unity Assets
+- 10 Youtube subscriptions
+- 10 Spotify Subscriptions 
+- 10 Github Watching
+- 10 Github Repos
+- 10 Discord
+- 10 Pinokios 
+	VIDEO
+	- 1/ Allegro-txt2vid - Create movies	
+	- 2/ FaceFusion 3.0.0 - Real Time face swapper
+	IMAGE
+	- 3/ LivePortrait (HF) - Non Real time create face animation from source picture
+	- 2/ Fooocus - Image generate/manipulate FaceFusion
+	- 5/ PhotoMaker2 - upload photos and create a picture with img keyword
+	- 6/ OmniGen - upload 3 photos and include them all in photo
+	- 6HF/ FacePoke - Move head around and pose
+	SOUND
+	- 4/ Audiocraft_Plus - Make sounds and music (use bpm and scale)	
+	- 5/ RCStableAudioTools - 
+	- 6/ e2-f5-tts - High quality speech imitation	
+	- 10/ diffusers-image-fill - fill in empty spaces
+	BROKE
+	- CogStudio (BROKE) - Create Video / Enhance Prompt
+	- FluxGym (BROKE) - Create LORAs
+	
+
+
+FIRST WEEKEND OF MONTH:
+- Check food and yell at Kim
+- Check all money cards and yell at Kim / update notes with new debt
+- Run vacuum on floor
+- Shave head/balls
+- Reset Phone/Computers
+
+
+SHOPPING: 
+Body: ShavingCream Razors Tylenol TylenolPM Toothpaste Toothbrush Floss Soap Shampoo Qtips 
+Other: PlasticUtensils PlasticCups PlasticBowls PaperPlates AluminumFoil Ziplocs GarbageBags Batteries  
+
+
+NICK/MAYA/MATEO QUESTIONS: Jan 1st ever + video compilation
+1- Where do you see yourself in 20 years? 
+2- Is emotion or logic more important in humanity 
+3- What is the purpose of life? 
+4- Who do you want to be president of the USA? 
+5- What is PI ? 
+
+
+JOB REFS:
+Kathleen Dangle, Project Coordinator, USCP, 240-463-2810 --kacdang@gmail.com
+Raymond Domalain, Database Engineer, USCP, 310-882-3220 --rymndmln@gmail.com
+Larry Lambert, Manager, OMB EOP, 202-395-4752 --llambert@omb.eop.gov
+Steve Kuennen, .NET Developer, OMB EOP, 202-821-9796 steve.kuennen@gmail.com
+Vy Tran, Manager, OMB EOP, 301-461-1841 --vytran95@gmail.com
+Jared Samuelson, .NET Developer, Federal Reserve Board, 540-255-8255 ---jss29228@email.vccs.edu
+Charles Burford III, Manager, NCMEC, 202-468-6645 ---charles.burford@gmail.com
+Dan Hung, Manager, J. G. Wentworth, 703-980-0314 ---dhung1@gmail.com
+Daryl Kelly, .NET Developer, DOJ COPS, 703-868-3170 ---dkprofile4@yahoo.com
+Adam Blydenburgh, .NET Developer, DOJ COPS, 202-421-0023 ---adamblydenburgh@gmail.com
+YunYun Lai, .NET Developer, USALSA, 571-236-4028 -- lucylai2@gmail.com
+
+
+
+

@@ -14,16 +14,77 @@ public class HomeBase : ComponentBase
     protected HashSet<string> matchedWords = new();
     protected List<int> highlightedCells = new();
     protected string? lastUploadedFile;
+    protected string? lastUploadedPhrasesFile;
     protected string? debugInfo;
     protected Dictionary<string, int> extractedWords = new();
     protected string[] phrases = new string[16];
     protected string[] uploadedPhrases = new string[16];
+    protected bool phrasesLoaded = false;
 
     protected bool IsHighlighted(int index) => highlightedCells.Contains(index);
-    protected bool IsMatched(string phrase) => matchedWords.Contains(phrase.ToLower().Replace("?", ""));
+    
+    protected bool IsMatched(string phrase)
+    {
+        if (string.IsNullOrEmpty(phrase)) return false;
+        var cleanPhrase = phrase.ToLower().Replace("?", "");
+        return matchedWords.Contains(cleanPhrase);
+    }
+
+    public virtual async Task ProcessPhrasesFile(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            var file = e.File;
+            lastUploadedPhrasesFile = file.Name;
+            debugInfo = $"Processing phrases file: {file.Name}\n";
+
+            if (file.Size > 5 * 1024 * 1024) // 5MB limit
+            {
+                await JSRuntime.InvokeVoidAsync("alert", "File size must be less than 5MB");
+                return;
+            }
+
+            using var reader = new StreamReader(file.OpenReadStream());
+            var content = await reader.ReadToEndAsync();
+
+            try
+            {
+                // Parse and update phrases
+                phrases = ParseUploadedPhrases(content);
+                phrasesLoaded = true;
+                
+                // Reset game state when new phrases are loaded
+                matchedWords.Clear();
+                highlightedCells.Clear();
+                extractedWords.Clear();
+                lastUploadedFile = null;
+                
+                await JSRuntime.InvokeVoidAsync("console.log", "Phrases file processed:", file.Name);
+                await JSRuntime.InvokeVoidAsync("console.log", "Loaded phrases:", string.Join(", ", phrases));
+            }
+            catch (InvalidOperationException ex)
+            {
+                phrasesLoaded = false;
+                await JSRuntime.InvokeVoidAsync("alert", ex.Message);
+            }
+        }
+        catch (Exception ex)
+        {
+            phrasesLoaded = false;
+            debugInfo = $"Error: {ex.Message}\n{ex.StackTrace}";
+            await JSRuntime.InvokeVoidAsync("console.error", "Error processing phrases file:", ex.Message);
+            await JSRuntime.InvokeVoidAsync("alert", "Error processing phrases file: " + ex.Message);
+        }
+    }
 
     public virtual async Task ProcessFile(InputFileChangeEventArgs e)
     {
+        if (!phrasesLoaded)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Please upload phrases file first.");
+            return;
+        }
+
         try
         {
             var file = e.File;
@@ -41,7 +102,7 @@ public class HomeBase : ComponentBase
 
             debugInfo += $"File content length: {content.Length} characters\n\n";
 
-            // Reset game state
+            // Reset match state but keep phrases
             matchedWords.Clear();
             highlightedCells.Clear();
             extractedWords.Clear();
@@ -51,9 +112,6 @@ public class HomeBase : ComponentBase
 
             // Process the content and check for matches
             ProcessContent(content);
-
-            // Parse and update phrases from the uploaded file
-            uploadedPhrases = ParseUploadedPhrases(content);
 
             await JSRuntime.InvokeVoidAsync("console.log", "File processed:", file.Name);
             await JSRuntime.InvokeVoidAsync("console.log", "Extracted words:", string.Join(", ", extractedWords.Keys));
@@ -96,13 +154,19 @@ public class HomeBase : ComponentBase
 
     public virtual void ProcessContent(string content)
     {
+        if (string.IsNullOrEmpty(content)) return;
+        
         content = content.ToLower();
         debugInfo += "Checking for matches...\n";
 
         foreach (var phrase in phrases)
         {
+            if (string.IsNullOrEmpty(phrase)) continue;
+            
             var cleanPhrase = phrase.ToLower().Replace("?", "");
-            if (content.Contains(cleanPhrase))
+            // Use word boundary regex pattern to ensure exact phrase matches
+            var pattern = $@"\b{Regex.Escape(cleanPhrase)}\b";
+            if (Regex.IsMatch(content, pattern))
             {
                 matchedWords.Add(cleanPhrase);
                 debugInfo += $"Found match: {phrase}\n";
@@ -115,6 +179,8 @@ public class HomeBase : ComponentBase
 
     public virtual void CheckForBingo()
     {
+        highlightedCells.Clear(); // Clear any previous highlights
+        
         var winningCombinations = new List<int[]>
         {
             // Rows
@@ -137,7 +203,7 @@ public class HomeBase : ComponentBase
         foreach (var combination in winningCombinations)
         {
             var combinationPhrases = combination.Select(i => phrases[i].ToLower().Replace("?", "")).ToList();
-            var allMatched = combinationPhrases.All(phrase => matchedWords.Contains(phrase));
+            var allMatched = combinationPhrases.All(phrase => !string.IsNullOrEmpty(phrase) && matchedWords.Contains(phrase));
 
             if (allMatched)
             {
@@ -157,6 +223,9 @@ public class HomeBase : ComponentBase
 
     public virtual string[] ParseUploadedPhrases(string content)
     {
+        if (string.IsNullOrEmpty(content))
+            throw new InvalidOperationException("Content cannot be empty.");
+            
         var phrases = content.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                              .Select(p => p.Trim())
                              .ToArray();

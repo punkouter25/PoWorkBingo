@@ -10,26 +10,55 @@
     <!-- Upload Section First -->
     <div class="upload-container">
         <div class="upload-section">
-            <h2>Step 1: Upload Your Document</h2>
-            <label class="upload-button">
-                <InputFile OnChange="@ProcessFile" accept=".txt" class="file-input" />
-                Upload Text File
-            </label>
-            <div class="file-instructions">
-                Upload a .txt file (max 5MB) to check for matches
-            </div>
-            @if (lastUploadedFile != null)
-            {
-                <div class="upload-info">
-                    Last uploaded file: @lastUploadedFile
+            <h2>Upload Files</h2>
+            <div class="steps">
+                <div class="step">
+                    <h3>Step 1: Upload Bingo Phrases</h3>
+                    <label class="upload-button">
+                        <InputFile OnChange="@ProcessPhrasesFile" accept=".txt" class="file-input" />
+                        Upload Phrases
+                    </label>
+                    <div class="file-instructions">
+                        Upload a .txt file containing exactly 16 phrases separated by commas
+                    </div>
+                    @if (lastUploadedPhrasesFile != null)
+                    {
+                        <div class="upload-info">
+                            Phrases loaded from: @lastUploadedPhrasesFile
+                        </div>
+                    }
                 </div>
-            }
+
+                <div class="step @(!phrasesLoaded ? "disabled" : "")">
+                    <h3>Step 2: Upload Text to Search</h3>
+                    <label class="upload-button @(!phrasesLoaded ? "disabled" : "")">
+                        <InputFile OnChange="@ProcessFile" accept=".txt" class="file-input" disabled="@(!phrasesLoaded)" />
+                        Upload Text File
+                    </label>
+                    <div class="file-instructions">
+                        @if (!phrasesLoaded)
+                        {
+                            <span class="warning">Please upload phrases first</span>
+                        }
+                        else
+                        {
+                            <span>Upload a .txt file (max 5MB) to check for matches</span>
+                        }
+                    </div>
+                    @if (lastUploadedFile != null)
+                    {
+                        <div class="upload-info">
+                            Searching text from: @lastUploadedFile
+                        </div>
+                    }
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Bingo Grid Section -->
     <div class="game-section">
-        <h2>Step 2: Check Your Bingo Card</h2>
+        <h2>Bingo Board</h2>
         <div class="bingo-grid">
             @if (phrases != null && phrases.Length == 16)
             {
@@ -42,13 +71,22 @@
                     </div>
                 }
             }
+            else
+            {
+                for (int i = 0; i < 16; i++)
+                {
+                    <div class="bingo-cell empty" @key="i">
+                        Upload phrases to start
+                    </div>
+                }
+            }
         </div>
     </div>
 
     @if (extractedWords.Any())
     {
         <div class="word-grid-section">
-            <h3>Top 20 Words</h3>
+            <h3>Top 20 Words Found</h3>
             <div class="word-grid">
                 <div class="word-cell header">Rank</div>
                 <div class="word-cell header">Word</div>
@@ -62,27 +100,6 @@
             </div>
         </div>
     }
-
-    @if (uploadedPhrases != null && uploadedPhrases.Length == 16)
-    {
-        <div class="uploaded-phrases-section">
-            <h3>Uploaded Phrases</h3>
-            <div class="uploaded-phrases-grid">
-                @foreach (var phrase in uploadedPhrases)
-                {
-                    <div class="uploaded-phrase-cell">@phrase</div>
-                }
-            </div>
-        </div>
-    }
-
-    @* @if (debugInfo != null)
-    {
-        <div class="debug-info">
-            <h3>Debug Information</h3>
-            <pre>@debugInfo</pre>
-        </div>
-    } *@
 </div>
 
 @if (showBingoModal)
@@ -113,6 +130,13 @@
         color: #444;
         margin-bottom: 20px;
         font-size: 1.5em;
+        text-align: center;
+    }
+
+    h3 {
+        color: #555;
+        margin-bottom: 15px;
+        font-size: 1.2em;
     }
 
     .upload-container {
@@ -124,9 +148,25 @@
         padding: 25px;
         border-radius: 8px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        text-align: center;
         margin: 0 auto;
-        max-width: 400px;
+        max-width: 600px;
+    }
+
+    .steps {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    .step {
+        padding: 20px;
+        border-radius: 8px;
+        background-color: white;
+        transition: opacity 0.3s;
+    }
+
+    .step.disabled {
+        opacity: 0.6;
     }
 
     .upload-button {
@@ -136,13 +176,19 @@
         color: white;
         border-radius: 4px;
         cursor: pointer;
-        margin: 15px 0;
-        transition: background-color 0.3s;
+        transition: all 0.3s;
         font-weight: bold;
+        width: 200px;
+        text-align: center;
     }
 
-        .upload-button:hover {
+        .upload-button:hover:not(.disabled) {
             background-color: #0056b3;
+        }
+
+        .upload-button.disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
         }
 
     .game-section {
@@ -168,6 +214,12 @@
         font-size: 14px;
         background-color: white;
         transition: background-color 0.3s;
+    }
+
+    .bingo-cell.empty {
+        color: #999;
+        font-style: italic;
+        border: 2px dashed #ccc;
     }
 
     .matched {
@@ -214,6 +266,11 @@
     .file-instructions {
         color: #666;
         font-size: 14px;
+        margin-top: 10px;
+    }
+
+    .warning {
+        color: #dc3545;
     }
 
     .upload-info {
@@ -221,22 +278,6 @@
         color: #28a745;
         font-size: 14px;
     }
-
-    .debug-info {
-        margin-top: 40px;
-        max-width: 600px;
-        margin: 40px auto;
-    }
-
-        .debug-info pre {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 4px;
-            font-size: 12px;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            color: #666;
-        }
 
     .modal-backdrop {
         position: fixed;
@@ -271,27 +312,4 @@
         .close-button:hover {
             background-color: #0056b3;
         }
-
-    .uploaded-phrases-section {
-        margin-top: 40px;
-        text-align: center;
-    }
-
-    .uploaded-phrases-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 10px;
-        max-width: 600px;
-        margin: 0 auto;
-    }
-
-    .uploaded-phrase-cell {
-        border: 1px solid #ddd;
-        padding: 8px;
-        text-align: center;
-        background-color: #f8f9fa;
-        border-radius: 4px;
-        font-size: 12px;
-        word-break: break-word;
-    }
 </style>
