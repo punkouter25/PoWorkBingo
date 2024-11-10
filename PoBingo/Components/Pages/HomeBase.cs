@@ -16,6 +16,8 @@ public class HomeBase : ComponentBase
     protected string? lastUploadedFile;
     protected string? debugInfo;
     protected Dictionary<string, int> extractedWords = new();
+    protected string[] phrases = new string[16];
+    protected string[] uploadedPhrases = new string[16];
 
     protected bool IsHighlighted(int index) => highlightedCells.Contains(index);
     protected bool IsMatched(string phrase) => matchedWords.Contains(phrase.ToLower().Replace("?", ""));
@@ -49,6 +51,9 @@ public class HomeBase : ComponentBase
 
             // Process the content and check for matches
             ProcessContent(content);
+
+            // Parse and update phrases from the uploaded file
+            uploadedPhrases = ParseUploadedPhrases(content);
 
             await JSRuntime.InvokeVoidAsync("console.log", "File processed:", file.Name);
             await JSRuntime.InvokeVoidAsync("console.log", "Extracted words:", string.Join(", ", extractedWords.Keys));
@@ -91,14 +96,6 @@ public class HomeBase : ComponentBase
 
     public virtual void ProcessContent(string content)
     {
-        var phrases = new string[]
-        {
-            "Smoke Test", "That makes sense", "Confused", "That's fair",
-            "Dev", "Test", "File Router", "Behind Schedule",
-            "SQL", "Azure", "Comm Service", "Optimization",
-            "Person", "Ball", "Code", ".NET"
-        };
-
         content = content.ToLower();
         debugInfo += "Checking for matches...\n";
 
@@ -135,14 +132,6 @@ public class HomeBase : ComponentBase
             new[] { 3, 6, 9, 12 }
         };
 
-        var phrases = new string[]
-        {
-            "Smoke Test", "That makes sense", "Confused", "That's fair",
-            "Dev", "Test", "File Router", "Behind Schedule",
-            "SQL", "Azure", "Comm Service", "Optimization",
-            "Person", "Ball", "Code", ".NET"
-        };
-
         debugInfo += "\nChecking for winning combinations...\n";
 
         foreach (var combination in winningCombinations)
@@ -164,6 +153,20 @@ public class HomeBase : ComponentBase
     public virtual void CloseModal()
     {
         showBingoModal = false;
+    }
+
+    public virtual string[] ParseUploadedPhrases(string content)
+    {
+        var phrases = content.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                             .Select(p => p.Trim())
+                             .ToArray();
+
+        if (phrases.Length != 16)
+        {
+            throw new InvalidOperationException("The uploaded file must contain exactly 16 phrases separated by commas.");
+        }
+
+        return phrases;
     }
 
     // For testing purposes

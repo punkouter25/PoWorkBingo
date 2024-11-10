@@ -49,6 +49,7 @@ public class BingoGameTests
     {
         // Arrange
         var content = "The development team completed their smoke test and optimization tasks in azure.";
+        _component.phrases = new string[] { "smoke test", "optimization", "azure", "development", "team", "completed", "tasks", "in", "the", "their", "and", "team", "completed", "tasks", "in", "the" };
 
         // Act
         _component.ProcessContent(content);
@@ -66,6 +67,7 @@ public class BingoGameTests
     {
         // Arrange
         var content = "smoke test that makes sense confused that's fair";  // First row combination
+        _component.phrases = new string[] { "smoke test", "that makes sense", "confused", "that's fair", "development", "team", "completed", "tasks", "in", "the", "their", "and", "team", "completed", "tasks", "in" };
 
         // Act - Process content first
         _component.ProcessContent(content);
@@ -140,6 +142,7 @@ public class BingoGameTests
     {
         // Arrange - Set initial state through a winning combination
         var content = "smoke test that makes sense confused that's fair";
+        _component.phrases = new string[] { "smoke test", "that makes sense", "confused", "that's fair", "development", "team", "completed", "tasks", "in", "the", "their", "and", "team", "completed", "tasks", "in" };
         _component.ProcessContent(content);
         _component.CheckForBingo();
         Assert.True(_component.GetShowBingoModal()); // Verify modal is shown
@@ -149,5 +152,21 @@ public class BingoGameTests
 
         // Assert
         Assert.False(_component.GetShowBingoModal());
+    }
+
+    [Fact]
+    public void ParseUploadedPhrases_ShouldExtractPhrasesCorrectly()
+    {
+        // Arrange
+        var content = "phrase1, phrase2, phrase3, phrase4, phrase5, phrase6, phrase7, phrase8, phrase9, phrase10, phrase11, phrase12, phrase13, phrase14, phrase15, phrase16";
+
+        // Act
+        var phrases = _component.ParseUploadedPhrases(content);
+
+        // Assert
+        Assert.NotNull(phrases);
+        Assert.Equal(16, phrases.Length);
+        Assert.Contains("phrase1", phrases);
+        Assert.Contains("phrase16", phrases);
     }
 }

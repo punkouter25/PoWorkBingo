@@ -31,15 +31,8 @@
     <div class="game-section">
         <h2>Step 2: Check Your Bingo Card</h2>
         <div class="bingo-grid">
-            @{
-                var phrases = new string[]
-                {
-            "Smoke Test", "That makes sense", "Confused", "That's fair",
-            "Dev", "Test", "File Router", "Behind Schedule",
-            "SQL", "Azure", "Comm Service", "Optimization",
-            "Person", "Ball", "Code", ".NET"
-                };
-
+            @if (phrases != null && phrases.Length == 16)
+            {
                 for (int i = 0; i < 16; i++)
                 {
                     var isHighlighted = IsHighlighted(i);
@@ -65,6 +58,19 @@
                     <div class="word-cell">@word.Rank</div>
                     <div class="word-cell">@word.Word</div>
                     <div class="word-cell">@word.Count</div>
+                }
+            </div>
+        </div>
+    }
+
+    @if (uploadedPhrases != null && uploadedPhrases.Length == 16)
+    {
+        <div class="uploaded-phrases-section">
+            <h3>Uploaded Phrases</h3>
+            <div class="uploaded-phrases-grid">
+                @foreach (var phrase in uploadedPhrases)
+                {
+                    <div class="uploaded-phrase-cell">@phrase</div>
                 }
             </div>
         </div>
@@ -265,4 +271,27 @@
         .close-button:hover {
             background-color: #0056b3;
         }
+
+    .uploaded-phrases-section {
+        margin-top: 40px;
+        text-align: center;
+    }
+
+    .uploaded-phrases-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .uploaded-phrase-cell {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: center;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+        font-size: 12px;
+        word-break: break-word;
+    }
 </style>
