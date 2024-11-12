@@ -348,7 +348,7 @@ public class BingoGameTests
         _ = mockFile.Setup(f => f.Size).Returns(1024);
         _ = mockFile.Setup(f => f.Name).Returns("new_phrases.txt");
 
-        string content = string.join(", ", Enumerable.Range(1, 16).Select(i => $"new{i}"));
+        string content = string.Join(", ", Enumerable.Range(1, 16).Select(i => $"new{i}"));
         MemoryStream stream = new(Encoding.UTF8.GetBytes(content));
         _ = mockFile.Setup(f => f.OpenReadStream(It.IsAny<long>(), It.IsAny<CancellationToken>())).Returns(stream);
 

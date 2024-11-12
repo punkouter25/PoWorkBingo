@@ -2,7 +2,9 @@
 @inherits HomeBase
 @rendermode InteractiveServer
 
-<PageTitle>Bingo Game</PageTitle>
+<PageTitle>Document Review Bingo</PageTitle>
+
+<link href="css/bingo.css" rel="stylesheet" />
 
 <div class="container">
     <h1>Document Review Bingo</h1>
@@ -14,32 +16,36 @@
             <div class="steps">
                 <div class="step">
                     <h3>Step 1: Upload Bingo Phrases</h3>
-                    <label class="upload-button">
-                        <InputFile OnChange="@ProcessPhrasesFile" accept=".txt" class="file-input" />
-                        Upload Phrases
-                    </label>
-                    <button class="upload-button" @onclick="LoadDefaultPhrases">USE DEFAULT WORDS</button>
+                    <div class="button-group">
+                        <label class="upload-button primary-button">
+                            <InputFile OnChange="@ProcessPhrasesFile" accept=".txt" class="file-input" />
+                            <i class="fas fa-upload"></i> Upload Phrases
+                        </label>
+                        <button class="upload-button secondary-button" @onclick="LoadDefaultPhrases">
+                            <i class="fas fa-dice"></i> Use Default Words
+                        </button>
+                    </div>
                     <div class="file-instructions">
                         Upload a .txt file containing exactly 16 phrases separated by commas
                     </div>
                     @if (lastUploadedPhrasesFile != null)
                     {
                         <div class="upload-info">
-                            Phrases loaded from: @lastUploadedPhrasesFile
+                            <i class="fas fa-check-circle"></i> Phrases loaded from: @lastUploadedPhrasesFile
                         </div>
                     }
                 </div>
 
                 <div class="step @(!phrasesLoaded ? "disabled" : "")">
                     <h3>Step 2: Upload Text to Search</h3>
-                    <label class="upload-button @(!phrasesLoaded ? "disabled" : "")">
+                    <label class="upload-button primary-button @(!phrasesLoaded ? "disabled" : "")">
                         <InputFile OnChange="@ProcessFile" accept=".txt" class="file-input" disabled="@(!phrasesLoaded)" />
-                        Upload Text File
+                        <i class="fas fa-file-upload"></i> Upload Text File
                     </label>
                     <div class="file-instructions">
                         @if (!phrasesLoaded)
                         {
-                            <span class="warning">Please upload phrases first</span>
+                            <span class="warning"><i class="fas fa-exclamation-triangle"></i> Please upload phrases first</span>
                         }
                         else
                         {
@@ -49,7 +55,7 @@
                     @if (lastUploadedFile != null)
                     {
                         <div class="upload-info">
-                            Searching text from: @lastUploadedFile
+                            <i class="fas fa-check-circle"></i> Searching text from: @lastUploadedFile
                         </div>
                     }
                 </div>
@@ -68,7 +74,7 @@
                     var isHighlighted = IsHighlighted(i);
                     var isMatched = IsMatched(phrases[i]);
                     <div class="bingo-cell @(isHighlighted ? "highlighted" : "") @(isMatched ? "matched" : "")" @key="i">
-                        @phrases[i]
+                        <div class="cell-content">@phrases[i]</div>
                     </div>
                 }
             }
@@ -77,7 +83,7 @@
                 for (int i = 0; i < 16; i++)
                 {
                     <div class="bingo-cell empty" @key="i">
-                        Upload phrases to start
+                        <div class="cell-content">Upload phrases to start</div>
                     </div>
                 }
             }
@@ -98,7 +104,7 @@
                     <div class="word-cell">@word.Word</div>
                     <div class="word-cell">@word.Count</div>
                 }
-            }
+            </div>
         </div>
     }
 </div>
@@ -107,210 +113,14 @@
 {
     <div class="modal-backdrop">
         <div class="modal-content">
-            <h2>BINGO!</h2>
-            <p>Congratulations! You've found a winning combination!</p>
-            <button class="close-button" @onclick="CloseModal">Close</button>
+            <div class="modal-header">
+                <h2><i class="fas fa-trophy"></i> BINGO!</h2>
+            </div>
+            <div class="modal-body">
+                <div class="confetti"></div>
+                <p>Congratulations! You've found a winning combination!</p>
+                <button class="close-button" @onclick="CloseModal">Close</button>
+            </div>
         </div>
     </div>
 }
-
-<style>
-    .container {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 20px;
-    }
-
-    h1 {
-        text-align: center;
-        margin-bottom: 30px;
-        color: #333;
-    }
-
-    h2 {
-        color: #444;
-        margin-bottom: 20px;
-        font-size: 1.5em;
-        text-align: center;
-    }
-
-    h3 {
-        color: #555;
-        margin-bottom: 15px;
-        font-size: 1.2em;
-    }
-
-    .upload-container {
-        margin-bottom: 40px;
-    }
-
-    .upload-section {
-        background-color: #f8f9fa;
-        padding: 25px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        margin: 0 auto;
-        max-width: 600px;
-    }
-
-    .steps {
-        display: flex;
-        flex-direction: column;
-        gap: 30px;
-    }
-
-    .step {
-        padding: 20px;
-        border-radius: 8px;
-        background-color: white;
-        transition: opacity 0.3s;
-    }
-
-    .step.disabled {
-        opacity: 0.6;
-    }
-
-    .upload-button {
-        display: inline-block;
-        padding: 12px 24px;
-        background-color: #007bff;
-        color: white;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: all 0.3s;
-        font-weight: bold;
-        width: 200px;
-        text-align: center;
-    }
-
-        .upload-button:hover:not(.disabled) {
-            background-color: #0056b3;
-        }
-
-        .upload-button.disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-
-    .game-section {
-        text-align: center;
-    }
-
-    .bingo-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 10px;
-        max-width: 600px;
-        margin: 0 auto;
-    }
-
-    .bingo-cell {
-        aspect-ratio: 1;
-        border: 2px solid #333;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        padding: 10px;
-        font-size: 14px;
-        background-color: white;
-        transition: background-color 0.3s;
-    }
-
-    .bingo-cell.empty {
-        color: #999;
-        font-style: italic;
-        border: 2px dashed #ccc;
-    }
-
-    .matched {
-        background-color: #e6ffe6;
-    }
-
-    .highlighted {
-        background-color: yellow;
-    }
-
-    .word-grid-section {
-        margin-top: 40px;
-        text-align: center;
-    }
-
-    .word-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 10px;
-        margin: 20px auto;
-        max-width: 600px;
-    }
-
-    .word-cell {
-        border: 1px solid #ddd;
-        padding: 8px;
-        text-align: center;
-        background-color: #f8f9fa;
-        border-radius: 4px;
-        font-size: 12px;
-        word-break: break-word;
-    }
-
-    .header {
-        font-weight: bold;
-        background-color: #007bff;
-        color: white;
-    }
-
-    .file-input {
-        display: none;
-    }
-
-    .file-instructions {
-        color: #666;
-        font-size: 14px;
-        margin-top: 10px;
-    }
-
-    .warning {
-        color: #dc3545;
-    }
-
-    .upload-info {
-        margin-top: 10px;
-        color: #28a745;
-        font-size: 14px;
-    }
-
-    .modal-backdrop {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0,0,0,0.5);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
-    }
-
-    .modal-content {
-        background-color: white;
-        padding: 20px;
-        border-radius: 5px;
-        text-align: center;
-    }
-
-    .close-button {
-        margin-top: 10px;
-        padding: 5px 15px;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 3px;
-        cursor: pointer;
-    }
-
-        .close-button:hover {
-            background-color: #0056b3;
-        }
-</style>

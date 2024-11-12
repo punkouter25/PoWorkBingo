@@ -114,8 +114,8 @@ public class HomeBase : ComponentBase
             ProcessContent(content);
 
             await JSRuntime.InvokeVoidAsync("console.log", "File processed:", file.Name);
-            await JSRuntime.InvokeVoidAsync("console.log", "Extracted words:", string.join(", ", extractedWords.Keys));
-            await JSRuntime.InvokeVoidAsync("console.log", "Matched words:", string.join(", ", matchedWords));
+            await JSRuntime.InvokeVoidAsync("console.log", "Extracted words:", string.Join(", ", extractedWords.Keys));
+            await JSRuntime.InvokeVoidAsync("console.log", "Matched words:", string.Join(", ", matchedWords));
         }
         catch (Exception ex)
         {
