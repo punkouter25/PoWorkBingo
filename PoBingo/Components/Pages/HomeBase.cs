@@ -114,8 +114,8 @@ public class HomeBase : ComponentBase
             ProcessContent(content);
 
             await JSRuntime.InvokeVoidAsync("console.log", "File processed:", file.Name);
-            await JSRuntime.InvokeVoidAsync("console.log", "Extracted words:", string.Join(", ", extractedWords.Keys));
-            await JSRuntime.InvokeVoidAsync("console.log", "Matched words:", string.Join(", ", matchedWords));
+            await JSRuntime.InvokeVoidAsync("console.log", "Extracted words:", string.join(", ", extractedWords.Keys));
+            await JSRuntime.InvokeVoidAsync("console.log", "Matched words:", string.join(", ", matchedWords));
         }
         catch (Exception ex)
         {
@@ -236,6 +236,31 @@ public class HomeBase : ComponentBase
         }
 
         return phrases;
+    }
+
+    public virtual async Task LoadDefaultPhrases()
+    {
+        try
+        {
+            var defaultPhrases = await File.ReadAllTextAsync("Phrases.txt");
+            phrases = ParseUploadedPhrases(defaultPhrases);
+            phrasesLoaded = true;
+
+            // Reset game state when default phrases are loaded
+            matchedWords.Clear();
+            highlightedCells.Clear();
+            extractedWords.Clear();
+            lastUploadedFile = null;
+
+            await JSRuntime.InvokeVoidAsync("console.log", "Default phrases loaded:", string.Join(", ", phrases));
+        }
+        catch (Exception ex)
+        {
+            phrasesLoaded = false;
+            debugInfo = $"Error: {ex.Message}\n{ex.StackTrace}";
+            await JSRuntime.InvokeVoidAsync("console.error", "Error loading default phrases:", ex.Message);
+            await JSRuntime.InvokeVoidAsync("alert", "Error loading default phrases: " + ex.Message);
+        }
     }
 
     // For testing purposes

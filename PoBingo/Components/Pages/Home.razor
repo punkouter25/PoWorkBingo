@@ -18,6 +18,7 @@
                         <InputFile OnChange="@ProcessPhrasesFile" accept=".txt" class="file-input" />
                         Upload Phrases
                     </label>
+                    <button class="upload-button" @onclick="LoadDefaultPhrases">USE DEFAULT WORDS</button>
                     <div class="file-instructions">
                         Upload a .txt file containing exactly 16 phrases separated by commas
                     </div>
@@ -97,7 +98,7 @@
                     <div class="word-cell">@word.Word</div>
                     <div class="word-cell">@word.Count</div>
                 }
-            </div>
+            }
         </div>
     }
 </div>
