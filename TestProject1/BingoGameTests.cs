@@ -348,7 +348,7 @@ public class BingoGameTests
         _ = mockFile.Setup(f => f.Size).Returns(1024);
         _ = mockFile.Setup(f => f.Name).Returns("new_phrases.txt");
 
-        string content = string.Join(", ", Enumerable.Range(1, 16).Select(i => $"new{i}"));
+        string content = string.join(", ", Enumerable.Range(1, 16).Select(i => $"new{i}"));
         MemoryStream stream = new(Encoding.UTF8.GetBytes(content));
         _ = mockFile.Setup(f => f.OpenReadStream(It.IsAny<long>(), It.IsAny<CancellationToken>())).Returns(stream);
 
@@ -372,5 +372,37 @@ public class BingoGameTests
         string[] phrases = _component.GetPhrases();
         Assert.Contains("new1", phrases); // New phrases should be loaded
         Assert.DoesNotContain("old1", phrases); // Old phrases should be gone
+    }
+
+    [Fact]
+    public async Task LoadDefaultPhrases_ShouldLoadDefaultPhrases()
+    {
+        // Arrange
+        string defaultPhrases = "Smoke Test, That makes sense, Confused, That's fair, Dev, Test, File Router, Behind Schedule, SQL, Azure, Comm Service, Optimization, If you will, Ball, Code, .NET";
+        await File.WriteAllTextAsync("Phrases.txt", defaultPhrases);
+
+        // Act
+        await _component.LoadDefaultPhrases();
+
+        // Assert
+        Assert.True(_component.GetPhrasesLoaded());
+        string[] phrases = _component.GetPhrases();
+        Assert.Equal(16, phrases.Length);
+        Assert.Contains("Smoke Test", phrases);
+        Assert.Contains("That makes sense", phrases);
+        Assert.Contains("Confused", phrases);
+        Assert.Contains("That's fair", phrases);
+        Assert.Contains("Dev", phrases);
+        Assert.Contains("Test", phrases);
+        Assert.Contains("File Router", phrases);
+        Assert.Contains("Behind Schedule", phrases);
+        Assert.Contains("SQL", phrases);
+        Assert.Contains("Azure", phrases);
+        Assert.Contains("Comm Service", phrases);
+        Assert.Contains("Optimization", phrases);
+        Assert.Contains("If you will", phrases);
+        Assert.Contains("Ball", phrases);
+        Assert.Contains("Code", phrases);
+        Assert.Contains(".NET", phrases);
     }
 }
