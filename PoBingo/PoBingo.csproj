@@ -7,4 +7,10 @@
     <InternalsVisibleTo>TestProject1</InternalsVisibleTo>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Update="Phrases.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
