@@ -1,5 +1,6 @@
 ﻿@page "/Error"
 @using System.Diagnostics
+@using Microsoft.Extensions.Logging
 
 <PageTitle>Error</PageTitle>
 
@@ -28,9 +29,33 @@
     [CascadingParameter]
     private HttpContext? HttpContext { get; set; }
 
+    [Inject]
+    private ILogger<Error> Logger { get; set; } = default!;
+
     private string? RequestId { get; set; }
     private bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
 
-    protected override void OnInitialized() =>
+    protected override void OnInitialized()
+    {
         RequestId = Activity.Current?.Id ?? HttpContext?.TraceIdentifier;
+        LogErrorDetails();
+    }
+
+    private void LogErrorDetails()
+    {
+        if (HttpContext != null)
+        {
+            var errorDetails = new
+            {
+                RequestId,
+                HttpContext.TraceIdentifier,
+                HttpContext.Request.Path,
+                HttpContext.Request.Method,
+                HttpContext.Request.QueryString,
+                HttpContext.Connection.RemoteIpAddress
+            };
+
+            Logger.LogError("An error occurred: {@ErrorDetails}", errorDetails);
+        }
+    }
 }
